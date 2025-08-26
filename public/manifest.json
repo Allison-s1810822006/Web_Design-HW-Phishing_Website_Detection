@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "钓鱼网站检测器",
+  "name": "釣魚網站檢測器",
   "version": "1.0",
-  "description": "自动检测并警告用户可能的钓鱼网站",
+  "description": "自動檢測並警告用戶可能的釣魚網站",
   "permissions": [
     "storage",
     "activeTab",

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整外掛測試頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .high-risk {
+            background: #ffe6e6;
+            border-left: 4px solid #dc3545;
+        }
+        .medium-risk {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .low-risk {
+            background: #e6f7ff;
+            border-left: 4px solid #007bff;
+        }
+        .safe {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        form {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger-btn {
+            background: #dc3545;
+        }
+        .danger-btn:hover {
+            background: #c82333;
+        }
+        a {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        .test-results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .score-display {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .score-high { background: #f8d7da; color: #721c24; }
+        .score-medium { background: #fff3cd; color: #856404; }
+        .score-low { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔍 釣魚網站檢測器完整測試頁面</h1>
+
+    <div class="test-section high-risk">
+        <h2>⚠️ 高風險測試區域 - HTTP + 密碼欄位</h2>
+        <p><strong>風險說明：</strong>這個頁面使用HTTP協定且包含密碼欄位，應該觸發最高級別的安全警告</p>
+        <form>
+            <label>使用者名稱：</label><br>
+            <input type="text" name="username" placeholder="輸入使用者名稱"><br>
+
+            <label>密碼：</label><br>
+            <input type="password" name="password" placeholder="輸入密碼"><br>
+
+            <label>確認密碼：</label><br>
+            <input type="password" name="confirm_password" placeholder="確認密碼"><br><br>
+
+            <button type="submit" class="danger-btn">登入 (不安全)</button>
+        </form>
+        <p><em>預期檢測：HTTP協定(+20分) + HTTP上的密碼欄位(+25分) = 45分基礎風險</em></p>
+    </div>
+
+    <div class="test-section medium-risk">
+        <h2>🚨 可疑關鍵詞檢測測試</h2>
+        <p><strong>以下內容包含多個釣魚網站常用的可疑關鍵詞：</strong></p>
+        <div style="background: white; padding: 15px; border-radius: 5px; border: 2px dashed #ffc107;">
+            <p>🚨 <strong>URGENT</strong> - 您的帳戶即將被暫停！</p>
+            <p>📧 請立即 <strong>verify</strong> 您的身分資訊</p>
+            <p>⛔ 您的帳戶已被 <strong>suspended</strong></p>
+            <p>👆 <strong>Click here</strong> 立即處理這個問題</p>
+            <p>⏰ <strong>Act now</strong> - 這是 <strong>limited time</strong> 的特殊優惠</p>
+            <p>🎉 恭喜您成為我們的 <strong>winner</strong>！</p>
+            <p>🏆 <strong>Congratulations</strong> 您獲得了大獎！</p>
+        </div>
+        <p><em>預期檢測：7個可疑關鍵詞 × 5分 = +35分風險</em></p>
+    </div>
+
+    <div class="test-section medium-risk">
+        <h2>🔗 不安全連結檢測測試</h2>
+        <p><strong>以下連結使用HTTP協定（應該被自動標記為紅色邊框）：</strong></p>
+        <div style="background: white; padding: 15px; border-radius: 5px;">
+            <a href="http://example.com/login">HTTP登入頁面</a>
+            <a href="http://fake-bank.com">虛假銀行網站</a>
+            <a href="http://paypal-security.com">仿冒PayPal</a>
+            <a href="http://amazon-verify.com">仿冒Amazon</a>
+            <a href="http://microsoft-update.com">仿冒Microsoft</a><br><br>
+
+            <strong>對比 - 安全連結：</strong><br>
+            <a href="https://www.google.com" style="background: #e8f5e8;">HTTPS安全連結</a>
+        </div>
+        <p><em>預期檢測：5個不安全連結，但系統最多計算+15分風險</em></p>
+    </div>
+
+    <div class="test-section medium-risk">
+        <h2>🌐 可疑網域特徵測試</h2>
+        <p><strong>目前測試環境：</strong></p>
+        <div class="test-results">
+            <p>🌍 <strong>目前網域：</strong> <span id="current-domain"></span></p>
+            <p>🔍 <strong>協定：</strong> <span id="current-protocol"></span></p>
+            <p>📍 <strong>完整URL：</strong> <span id="current-url"></span></p>
+        </div>
+        <p><strong>可疑網域範例：</strong></p>
+        <ul>
+            <li>suspicious-fake-bank-login-site.com (過多連字號)</li>
+            <li>paypal-security-update-center.com (仿冒知名品牌)</li>
+            <li>192.168.1.100 (使用IP位址)</li>
+        </ul>
+        <p><em>預期檢測：如果網域包含過多連字號會被檢測為+10分風險</em></p>
+    </div>
+
+    <div class="test-section low-risk">
+        <h2>🎯 彈窗警告關鍵詞測試</h2>
+        <p><strong>包含彈窗和惡意軟體相關的警告詞彙：</strong></p>
+        <div style="background: white; padding: 15px; border-radius: 5px; border: 2px dashed #007bff;">
+            <p>🚨 系統檢測到 <strong>alert</strong> 訊息</p>
+            <p>⚠️ 發現安全 <strong>warning</strong> 信號</p>
+            <p>❌ 檢測到系統 <strong>error</strong> 狀態</p>
+            <p>🦠 發現可能的 <strong>virus</strong> 威脅</p>
+            <p>🔒 檢測到 <strong>malware</strong> 惡意活動</p>
+        </div>
+        <p><em>預期檢測：5個彈窗關鍵詞 × 8分 = +40分風險</em></p>
+    </div>
+
+    <div class="test-section safe">
+        <h2>📊 測試結果說明</h2>
+        <div class="score-display score-high" id="risk-score-display">
+            風險分數計算中...
+        </div>
+
+        <h3>🎯 預期檢測結果總計：</h3>
+        <div class="test-results">
+            <ul>
+                <li><strong>HTTP協定：</strong> +20分</li>
+                <li><strong>HTTP上的密碼欄位：</strong> +25分</li>
+                <li><strong>可疑關鍵詞（7個）：</strong> +35分</li>
+                <li><strong>不安全連結：</strong> +15分（上限）</li>
+                <li><strong>彈窗關鍵詞（5個）：</strong> +40分</li>
+                <li><strong>預計總分：</strong> <strong>135分 → 100分（系統上限）</strong></li>
+            </ul>
+        </div>
+
+        <h3>🧪 詳細測試步驟：</h3>
+        <ol>
+            <li>✅ <strong>確保外掛已安裝</strong>：檢查Chrome擴充功能管理頁面</li>
+            <li>🔄 <strong>重新整理此頁面</strong>：觀察是否彈出自動安全警告</li>
+            <li>🖱️ <strong>點選外掛圖示</strong>：查看詳細的風險評分報告</li>
+            <li>👀 <strong>檢查連結標記</strong>：HTTP連結應該被標記為紅色邊框</li>
+            <li>🔍 <strong>查看控制台</strong>：按F12查看檢測記錄</li>
+        </ol>
+
+        <h3>🎛️ 手動測試按鈕：</h3>
+        <button onclick="manualTest()" class="danger-btn">🔍 手動觸發檢測</button>
+        <button onclick="showConsoleLog()">📝 顯示檢測記錄</button>
+        <button onclick="checkExtensionStatus()">🔌 檢查外掛狀態</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🛠️ 故障排除指南</h2>
+        <div class="test-results">
+            <h4>如果沒有看到警告彈窗：</h4>
+            <ul>
+                <li>確認外掛已正確安裝並啟用</li>
+                <li>檢查瀏覽器控制台是否有錯誤訊息</li>
+                <li>嘗試重新整理頁面</li>
+                <li>確認您使用的是HTTP協定存取本頁面</li>
+            </ul>
+
+            <h4>如果風險分數不正確：</h4>
+            <ul>
+                <li>檢查content.js中的檢測邏輯</li>
+                <li>確認所有檢測功能都正常運作</li>
+                <li>查看控制台輸出的詳細資訊</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 顯示目前頁面資訊
+        document.getElementById('current-domain').textContent = window.location.hostname;
+        document.getElementById('current-protocol').textContent = window.location.protocol;
+        document.getElementById('current-url').textContent = window.location.href;
+
+        // 更新風險分數顯示
+        function updateRiskScoreDisplay(score) {
+            const display = document.getElementById('risk-score-display');
+            display.textContent = `目前風險分數: ${score}/100`;
+
+            if (score >= 70) {
+                display.className = 'score-display score-high';
+            } else if (score >= 30) {
+                display.className = 'score-display score-medium';
+            } else {
+                display.className = 'score-display score-low';
+            }
+        }
+
+        // 手動測試功能
+        function manualTest() {
+            console.log('🔍 開始手動檢測測試...');
+
+            // 模擬檢測邏輯（用於展示）
+            let simulatedScore = 0;
+            const risks = [];
+
+            // HTTP協定檢測
+            if (window.location.protocol !== "https:") {
+                simulatedScore += 20;
+                risks.push("使用不安全的HTTP連線");
+            }
+
+            // 密碼欄位檢測
+            const passwordFields = document.querySelectorAll('input[type="password"]');
+            if (passwordFields.length > 0 && window.location.protocol !== "https:") {
+                simulatedScore += 25;
+                risks.push("在不安全連線上要求密碼");
+            }
+
+            // 可疑關鍵詞檢測
+            const suspiciousKeywords = ['urgent', 'verify', 'suspended', 'click here', 'act now', 'limited time', 'winner', 'congratulations'];
+            const pageText = document.body.innerText.toLowerCase();
+            suspiciousKeywords.forEach(keyword => {
+                if (pageText.includes(keyword)) {
+                    simulatedScore += 5;
+                    risks.push(`包含可疑關鍵字: ${keyword}`);
+                }
+            });
+
+            updateRiskScoreDisplay(Math.min(simulatedScore, 100));
+
+            alert(`手動檢測完成！\n風險分數: ${Math.min(simulatedScore, 100)}/100\n檢測到的風險:\n${risks.join('\n')}`);
+        }
+
+        // 顯示控制台記錄
+        function showConsoleLog() {
+            console.log('📋 目前頁面檢測狀態:');
+            console.log('- 協定:', window.location.protocol);
+            console.log('- 網域:', window.location.hostname);
+            console.log('- 密碼欄位數量:', document.querySelectorAll('input[type="password"]').length);
+            console.log('- HTTP連結數量:', document.querySelectorAll('a[href^="http:"]').length);
+
+            alert('檢測資訊已輸出到控制台，請按F12查看詳細記錄');
+        }
+
+        // 檢查擴充功能狀態
+        function checkExtensionStatus() {
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                alert('✅ Chrome擴充功能API可用，外掛應該能正常運作');
+            } else {
+                alert('❌ 無法檢測到Chrome擴充功能API，請確認外掛已正確安裝');
+            }
+        }
+
+        // 頁面載入完成後的初始化
+        window.addEventListener("load", function() {
+            console.log('🚀 測試頁面載入完成');
+            console.log('📊 頁面包含以下測試元素:');
+            console.log('- 密碼欄位:', document.querySelectorAll('input[type="password"]').length, '個');
+            console.log('- HTTP連結:', document.querySelectorAll('a[href^="http:"]').length, '個');
+            console.log('- 總連結數:', document.querySelectorAll('a').length, '個');
+
+            // 模擬初始風險分數
+            setTimeout(() => {
+                updateRiskScoreDisplay(95); // 預期的高風險分數
+            }, 2000);
+        });
+
+        // 監聽外掛訊息（如果有的話）
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+                console.log('收到來自外掛的訊息:', request);
+            });
+        }
+    </script>
+</body>
+</html>

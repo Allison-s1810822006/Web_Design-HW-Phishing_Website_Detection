@@ -115,7 +115,7 @@ if (resetBtn) {
     resetBtn.addEventListener("click", reset);
 }
 
-// 弹窗页面的JavaScript逻辑
+// 彈窗頁面的JavaScript邏輯
 document.addEventListener('DOMContentLoaded', function() {
     const currentUrlElement = document.getElementById('currentUrl');
     const siteStatusElement = document.getElementById('siteStatus');
@@ -125,19 +125,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentTab = null;
 
-    // 获取当前活动标签页
+    // 獲取當前活動標籤頁
     async function getCurrentTab() {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         return tabs[0];
     }
 
-    // 检测网站安全性
+    // 檢測網站安全性
     function analyzeWebsite(url) {
         const phishingKeywords = [
             'verify-account', 'secure-update', 'urgent-action', 'suspended-account',
             'click-here-now', 'limited-time', 'act-now', 'confirm-identity',
             'paypal-security', 'amazon-security', 'microsoft-security', 'google-security',
-            'bank-verification', '立即验证', '账户已暂停', '紧急通知', '马上行动'
+            'bank-verification', '立即驗證', '賬戶已暫停', '緊急通知', '馬上行動'
         ];
 
         const suspiciousDomains = ['bit.ly', 'tinyurl.com', 'short.link', 'ow.ly'];
@@ -149,21 +149,21 @@ document.addEventListener('DOMContentLoaded', function() {
         let riskScore = 0;
         let reasons = [];
 
-        // 检查可疑域名
+        // 檢查可疑域名
         if (suspiciousDomains.some(suspicious => domain.includes(suspicious))) {
             riskScore += 30;
-            reasons.push('使用了短链接服务');
+            reasons.push('使用了短鏈接服務');
         }
 
-        // 检查钓鱼关键词
+        // 檢查釣魚關鍵詞
         phishingKeywords.forEach(keyword => {
             if (fullUrl.includes(keyword)) {
                 riskScore += 15;
-                reasons.push(`包含可疑关键词: ${keyword}`);
+                reasons.push(`包含可疑關鍵詞: ${keyword}`);
             }
         });
 
-        // 检查域名欺骗
+        // 檢查域名欺騙
         legitimateDomains.forEach(legitDomain => {
             if (domain.includes(legitDomain) && domain !== legitDomain) {
                 riskScore += 40;
@@ -171,13 +171,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // 检查HTTPS
+        // 檢查HTTPS
         if (!url.startsWith('https://')) {
             riskScore += 20;
-            reasons.push('未使用安全连接(HTTPS)');
+            reasons.push('未使用安全連接(HTTPS)');
         }
 
-        // 检查IP地址
+        // 檢查IP地址
         const ipPattern = /^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
         if (ipPattern.test(url)) {
             riskScore += 35;
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return { riskScore, reasons, domain };
     }
 
-    // 更新状态显示
+    // 更新狀態顯示
     function updateStatus(analysis) {
         const { riskScore, reasons, domain } = analysis;
 
@@ -196,11 +196,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (riskScore >= 40) {
             statusClass = 'danger';
             statusIcon = '⚠️';
-            statusText = `高风险 (${riskScore}分)`;
+            statusText = `高風險 (${riskScore}分)`;
         } else if (riskScore >= 20) {
             statusClass = 'warning';
             statusIcon = '⚠️';
-            statusText = `中等风险 (${riskScore}分)`;
+            statusText = `中等風險 (${riskScore}分)`;
         } else {
             statusClass = 'safe';
             statusIcon = '✅';
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <span class="${statusClass}">${statusText}</span>
         `;
 
-        // 如果有风险，显示详细信息
+        // 如果有風險，顯示詳細信息
         if (riskScore > 0 && reasons.length > 0) {
             const detailsDiv = document.createElement('div');
             detailsDiv.style.cssText = `
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 text-align: left;
             `;
             detailsDiv.innerHTML = `
-                <strong>检测到的问题:</strong><br>
+                <strong>檢測到的問題:</strong><br>
                 ${reasons.slice(0, 3).map(reason => `• ${reason}`).join('<br>')}
                 ${reasons.length > 3 ? '<br>• ...' : ''}
             `;
@@ -230,23 +230,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 执行扫描
+    // 執行掃描
     async function performScan() {
         if (!currentTab || !currentTab.url) return;
 
-        // 显示加载状态
+        // 顯示載入狀態
         scanText.style.display = 'none';
         scanSpinner.style.display = 'inline-block';
         scanButton.disabled = true;
 
         try {
-            // 模拟扫描延迟
+            // 模擬掃描延遲
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             const analysis = analyzeWebsite(currentTab.url);
             updateStatus(analysis);
 
-            // 保存扫描结果
+            // 保存掃描結果
             await chrome.storage.local.set({
                 [`scan_${currentTab.url}`]: {
                     timestamp: Date.now(),
@@ -255,59 +255,59 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         } catch (error) {
-            console.error('扫描失败:', error);
+            console.error('掃描失敗:', error);
             siteStatusElement.innerHTML = `
                 <span class="status-icon">❌</span>
-                <span class="danger">扫描失败</span>
+                <span class="danger">掃描失敗</span>
             `;
         } finally {
-            // 恢复按钮状态
+            // 恢復按鈕狀態
             scanText.style.display = 'inline';
             scanSpinner.style.display = 'none';
             scanButton.disabled = false;
         }
     }
 
-    // 初始化页面
+    // 初始化頁面
     async function initialize() {
         try {
             currentTab = await getCurrentTab();
 
             if (currentTab && currentTab.url) {
-                // 显示当前URL
+                // 顯示當前URL
                 const domain = new URL(currentTab.url).hostname;
                 currentUrlElement.textContent = domain;
 
-                // 检查是否有缓存的扫描结果
+                // 檢查是否有快取的掃描結果
                 const cached = await chrome.storage.local.get([`scan_${currentTab.url}`]);
                 const cachedData = cached[`scan_${currentTab.url}`];
 
-                if (cachedData && (Date.now() - cachedData.timestamp) < 300000) { // 5分钟缓存
+                if (cachedData && (Date.now() - cachedData.timestamp) < 300000) { // 5分鐘快取
                     updateStatus(cachedData.analysis);
                 } else {
-                    // 执行新的扫描
+                    // 執行新的掃描
                     const analysis = analyzeWebsite(currentTab.url);
                     updateStatus(analysis);
                 }
             } else {
-                currentUrlElement.textContent = '无法获取当前网站信息';
+                currentUrlElement.textContent = '無法獲取當前網站信息';
                 siteStatusElement.innerHTML = `
                     <span class="status-icon">❓</span>
                     <span>未知</span>
                 `;
             }
         } catch (error) {
-            console.error('初始化失败:', error);
-            currentUrlElement.textContent = '初始化失败';
+            console.error('初始化失敗:', error);
+            currentUrlElement.textContent = '初始化失敗';
         }
     }
 
-    // 事件监听器
+    // 事件監聽器
     scanButton.addEventListener('click', performScan);
 
     document.getElementById('settingsLink').addEventListener('click', function(e) {
         e.preventDefault();
-        // 打开选项页面或帮助页面
+        // 打開選項頁面或幫助頁面
         chrome.tabs.create({
             url: 'https://github.com/your-repo/phishing-detector/wiki'
         });

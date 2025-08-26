@@ -1,172 +1,122 @@
-// 内容脚本 - 页面级别的钓鱼检测
-(function() {
-  'use strict';
+console.log("Content script loaded for Phishing Detection.");
 
-  // 检测页面内容中的钓鱼指标
-  function detectPhishingContent() {
+// Phishing Detection Content Script
+
+function calculateRiskScore() {
+    let riskScore = 0;
+    const risks = [];
+
+    // 檢查 HTTP vs HTTPS
+    if (window.location.protocol !== "https:") {
+        riskScore += 20;
+        risks.push("使用不安全的 HTTP 連線");
+    }
+
+    // 檢查密碼欄位
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+    if (passwordFields.length > 0 && window.location.protocol !== "https:") {
+        riskScore += 25;
+        risks.push("在不安全連線上要求密碼");
+    }
+
+    // 檢查可疑關鍵字
+    const suspiciousKeywords = ['urgent', 'verify', 'suspended', 'click here', 'act now', 'limited time', 'winner', 'congratulations'];
     const pageText = document.body.innerText.toLowerCase();
-    const pageTitle = document.title.toLowerCase();
-
-    // 钓鱼网站常用的紧急性词汇
-    const urgentPhrases = [
-      '立即验证',
-      '账户已暂停',
-      '紧急通知',
-      '马上行动',
-      '限时优惠',
-      '账户安全',
-      '验证身份',
-      '点击确认',
-      'immediate action',
-      'verify now',
-      'account suspended',
-      'urgent notice',
-      'act now',
-      'limited time',
-      'security alert'
-    ];
-
-    // 检测表单中的敏感字段
-    const sensitiveFields = document.querySelectorAll('input[type="password"], input[name*="password"], input[name*="ssn"], input[name*="credit"], input[name*="card"]');
-
-    let suspiciousContent = 0;
-    let warnings = [];
-
-    // 检查紧急性词汇
-    urgentPhrases.forEach(phrase => {
-      if (pageText.includes(phrase) || pageTitle.includes(phrase)) {
-        suspiciousContent += 10;
-        warnings.push(`包含紧急性词汇: "${phrase}"`);
-      }
+    suspiciousKeywords.forEach(keyword => {
+        if (pageText.includes(keyword)) {
+            riskScore += 5;
+            risks.push(`包含可疑關鍵字: ${keyword}`);
+        }
     });
 
-    // 检查是否有过多的敏感表单字段
-    if (sensitiveFields.length > 3) {
-      suspiciousContent += 20;
-      warnings.push('页面包含过多敏感信息输入字段');
-    }
-
-    // 检测可疑的链接
-    const links = document.querySelectorAll('a[href]');
-    let externalLinks = 0;
+    // 檢查不安全連結
+    const links = document.querySelectorAll('a');
+    let insecureLinksCount = 0;
     links.forEach(link => {
-      const href = link.href.toLowerCase();
-      if (href.includes('bit.ly') || href.includes('tinyurl') || href.includes('short.link')) {
-        suspiciousContent += 15;
-        warnings.push('包含可疑的短链接');
-      }
-
-      // 检查外部链接
-      if (!href.includes(window.location.hostname) && (href.startsWith('http') || href.startsWith('https'))) {
-        externalLinks++;
-      }
+        if (link.href && link.protocol === "http:") {
+            insecureLinksCount++;
+        }
     });
 
-    // 如果外部链接过多也是可疑的
-    if (externalLinks > links.length * 0.7) {
-      suspiciousContent += 15;
-      warnings.push('页面包含过多外部链接');
+    if (insecureLinksCount > 0) {
+        riskScore += Math.min(insecureLinksCount * 3, 15);
+        risks.push(`包含 ${insecureLinksCount} 個不安全連結`);
     }
 
-    return { score: suspiciousContent, warnings: warnings };
-  }
-
-  // 监听表单提交，在提交敏感信息前再次警告
-  function monitorFormSubmissions() {
-    const forms = document.querySelectorAll('form');
-
-    forms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        const inputs = form.querySelectorAll('input[type="password"], input[name*="password"], input[name*="card"], input[name*="ssn"]');
-
-        if (inputs.length > 0 && !window.location.protocol.includes('https')) {
-          e.preventDefault();
-          showSecurityWarning();
-        }
-      });
-    });
-  }
-
-  // 显示安全警告
-  function showSecurityWarning() {
-    if (document.getElementById('security-warning-banner')) {
-      return;
+    // 檢查網域名稱可疑性
+    const hostname = window.location.hostname;
+    if (hostname.includes('-') && hostname.split('-').length > 3) {
+        riskScore += 10;
+        risks.push("網域名稱包含過多連字符");
     }
 
-    const banner = document.createElement('div');
-    banner.id = 'security-warning-banner';
-    banner.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #ff4444;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      z-index: 999998;
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    `;
-
-    banner.innerHTML = `
-      <strong>⚠️ 安全警告：</strong> 
-      您即将在不安全的连接上提交敏感信息！这可能会被第三方截获。
-      <button onclick="this.parentElement.remove()" style="
-        background: white;
-        color: #ff4444;
-        border: none;
-        padding: 5px 15px;
-        margin-left: 15px;
-        border-radius: 3px;
-        cursor: pointer;
-      ">关闭</button>
-    `;
-
-    document.body.insertBefore(banner, document.body.firstChild);
-
-    // 5秒后自动关闭
-    setTimeout(() => {
-      if (banner.parentElement) {
-        banner.remove();
-      }
-    }, 5000);
-  }
-
-  // 页面加载完成后执行检测
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        const contentAnalysis = detectPhishingContent();
-        monitorFormSubmissions();
-
-        // 如果内容分析发现问题，发送消息给背景脚本
-        if (contentAnalysis.score > 20) {
-          chrome.runtime.sendMessage({
-            type: 'contentWarning',
-            score: contentAnalysis.score,
-            warnings: contentAnalysis.warnings,
-            url: window.location.href
-          });
+    // 檢查是否有彈窗或緊急提示
+    const popupWords = ['alert', 'warning', 'error', 'virus', 'malware'];
+    popupWords.forEach(word => {
+        if (pageText.includes(word)) {
+            riskScore += 8;
         }
-      }, 1000);
     });
-  } else {
-    setTimeout(() => {
-      const contentAnalysis = detectPhishingContent();
-      monitorFormSubmissions();
 
-      if (contentAnalysis.score > 20) {
-        chrome.runtime.sendMessage({
-          type: 'contentWarning',
-          score: contentAnalysis.score,
-          warnings: contentAnalysis.warnings,
-          url: window.location.href
-        });
-      }
-    }, 1000);
-  }
+    return {
+        riskScore: Math.min(riskScore, 100),
+        risks: risks
+    };
+}
 
-})();
+function checkPageSecurity() {
+    // --- 原始功能：檢查當前頁面是否為 HTTP 且有密碼欄位 ---
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+    if (passwordFields.length > 0 && window.location.protocol !== "https:") {
+        console.warn("Phishing Risk: Password field found on an insecure (HTTP) page.");
+        alert(`！！！頁面安全警告！！！\n\n此網站使用不安全的 HTTP 連線，且正在要求您輸入密碼。\n\n在此提交資訊可能會有風險。`);
+    }
 
+    // --- 新功能：檢查頁面中所有連結是否為 HTTPS ---
+    const links = document.querySelectorAll('a');
+    let insecureLinksFound = false;
+    links.forEach(link => {
+        // 檢查 href 屬性存在且開頭為 "http:" (而非 "https:")
+        if (link.href && link.protocol === "http:") {
+            insecureLinksFound = true;
+            console.warn('Insecure link found:', link.href);
+            // 為不安全的連結加上紅色樣式，使其更醒目
+            link.style.border = '2px solid red';
+            link.style.padding = '2px';
+        }
+    });
+
+    if (insecureLinksFound) {
+        alert(`！！！連結安全警告！！！\n\n此頁面包含前往不安全 (HTTP) 網站的連結。\n\n點擊這些連結時請格外小心。`);
+    }
+}
+
+// 監聽來自popup的訊息
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'detectPhishing') {
+        console.log('收到釣魚檢測請求');
+
+        try {
+            const result = calculateRiskScore();
+            console.log('檢測結果:', result);
+
+            sendResponse({
+                riskScore: result.riskScore,
+                risks: result.risks,
+                url: window.location.href
+            });
+        } catch (error) {
+            console.error('檢測過程中發生錯誤:', error);
+            sendResponse({
+                riskScore: 0,
+                risks: ['檢測失敗'],
+                url: window.location.href
+            });
+        }
+
+        return true; // 保持訊息通道開放
+    }
+});
+
+// 當頁面完全載入後執行檢查
+window.addEventListener("load", checkPageSecurity);

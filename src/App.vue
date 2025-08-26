@@ -26,10 +26,10 @@ const statusIcon = computed(() => {
 
 const statusText = computed(() => {
   switch (siteStatus.value) {
-    case 'safe': return `安全 (风险评分: ${riskScore.value})`
-    case 'warning': return `可疑 (风险评分: ${riskScore.value})`
-    case 'danger': return `危险 (风险评分: ${riskScore.value})`
-    default: return '检测中...'
+    case 'safe': return `安全（風險評分: ${riskScore.value}）`
+    case 'warning': return `可疑（風險評分: ${riskScore.value}）`
+    case 'danger': return `危險（風險評分: ${riskScore.value}）`
+    default: return '檢測中...'
   }
 })
 
@@ -45,23 +45,37 @@ async function getCurrentTab() {
       currentUrl.value = tab.url
     }
   } catch (error) {
-    console.error('获取当前标签页失败:', error)
-    currentUrl.value = '无法获取当前网站'
+    console.error('獲取當前分頁失敗:', error)
+    currentUrl.value = '無法獲取當前網站'
   }
 }
 
 async function performScan() {
-  if (!currentUrl.value || currentUrl.value === '无法获取当前网站') return
+  if (!currentUrl.value || currentUrl.value === '無法獲取當前網站') return
 
   isScanning.value = true
   siteStatus.value = 'checking'
 
   try {
-    // 获取当前标签页
+    // 獲取當前標籤頁
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
 
     if (tab?.id) {
-      // 向content script发送检测请求
+      // 先嘗試注入content script，以防它還沒載入
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js']
+        })
+      } catch (injectError) {
+        // 如果注入失敗（可能已經注入過），繼續執行
+        console.log('Content script 可能已經載入:', injectError.message)
+      }
+
+      // 給content script一點時間載入
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // 向content script發送檢測請求
       const response = await chrome.tabs.sendMessage(tab.id, { action: 'detectPhishing' })
 
       if (response) {
@@ -74,22 +88,25 @@ async function performScan() {
         } else {
           siteStatus.value = 'safe'
         }
+      } else {
+        // 如果沒有響應，設為安全狀態
+        siteStatus.value = 'safe'
+        riskScore.value = 0
       }
     }
   } catch (error) {
-    console.error('检测失败:', error)
-    siteStatus.value = 'safe'
-    riskScore.value = 0
+    console.error('檢測失敗:', error)
+    // 檢查是否是因為無法訪問特殊頁面（如chrome://）
+    if (error.message?.includes('Cannot access') || currentUrl.value.startsWith('chrome://')) {
+      siteStatus.value = 'safe'
+      riskScore.value = 0
+    } else {
+      siteStatus.value = 'safe'
+      riskScore.value = 0
+    }
   } finally {
     isScanning.value = false
   }
-}
-
-function openSettings() {
-  // 打开设置页面或帮助文档
-  chrome.tabs.create({
-    url: 'https://github.com/your-repo/phishing-detector#usage'
-  })
 }
 </script>
 
@@ -97,11 +114,11 @@ function openSettings() {
   <div class="popup-container">
     <div class="header">
       <div class="logo">🛡️</div>
-      <h1 class="title">钓鱼网站检测器</h1>
+      <h1 class="title">釣魚網站檢測器</h1>
     </div>
 
     <div class="current-site">
-      <div class="site-url">{{ currentUrl || '正在获取当前网站...' }}</div>
+      <div class="site-url">{{ currentUrl || '正在獲取當前網站...' }}</div>
       <div class="status" :class="statusClass">
         <span class="status-icon">{{ statusIcon }}</span>
         <span>{{ statusText }}</span>
@@ -113,34 +130,30 @@ function openSettings() {
       @click="performScan"
       :disabled="isScanning"
     >
-      <span v-if="!isScanning">重新扫描</span>
+      <span v-if="!isScanning">重新掃描</span>
       <span v-else class="loading-container">
         <span class="spinner"></span>
-        <span>扫描中...</span>
+        <span>掃描中...</span>
       </span>
     </button>
 
     <div class="features">
       <div class="feature">
         <span class="feature-icon">⚡</span>
-        <span>实时自动检测</span>
+        <span>即時自動檢測</span>
       </div>
       <div class="feature">
         <span class="feature-icon">🔒</span>
-        <span>安全连接验证</span>
+        <span>安全連線驗證</span>
       </div>
       <div class="feature">
         <span class="feature-icon">🎯</span>
-        <span>智能内容分析</span>
+        <span>智慧內容分析</span>
       </div>
       <div class="feature">
         <span class="feature-icon">📊</span>
-        <span>风险评分系统</span>
+        <span>風險評分系統</span>
       </div>
-    </div>
-
-    <div class="settings">
-      <a href="#" class="settings-link" @click="openSettings">设置和帮助</a>
     </div>
   </div>
 </template>
@@ -249,24 +262,6 @@ function openSettings() {
 
 .feature-icon {
   font-size: 16px;
-}
-
-.settings {
-  margin-top: 25px;
-  text-align: center;
-}
-
-.settings-link {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.settings-link:hover {
-  color: white;
-  text-decoration: underline;
 }
 
 .spinner {

@@ -1,4 +1,4 @@
-/* 钓鱼网站警告样式 */
+/* 釣魚網站警告樣式 */
 
 #phishing-warning-modal {
   position: fixed !important;
@@ -155,7 +155,7 @@
   background: linear-gradient(135deg, #545b62, #495057) !important;
 }
 
-/* 安全警告横幅样式 */
+/* 安全警告橫幅樣式 */
 #security-warning-banner {
   position: fixed !important;
   top: 0 !important;

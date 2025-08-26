@@ -6099,13 +6099,13 @@ const _sfc_main = {
     const statusText = computed(() => {
       switch (siteStatus.value) {
         case "safe":
-          return `安全 (风险评分: ${riskScore.value})`;
+          return `安全（風險評分: ${riskScore.value}）`;
         case "warning":
-          return `可疑 (风险评分: ${riskScore.value})`;
+          return `可疑（風險評分: ${riskScore.value}）`;
         case "danger":
-          return `危险 (风险评分: ${riskScore.value})`;
+          return `危險（風險評分: ${riskScore.value}）`;
         default:
-          return "检测中...";
+          return "檢測中...";
       }
     });
     onMounted(async () => {
@@ -6119,17 +6119,26 @@ const _sfc_main = {
           currentUrl.value = tab.url;
         }
       } catch (error) {
-        console.error("获取当前标签页失败:", error);
-        currentUrl.value = "无法获取当前网站";
+        console.error("獲取當前分頁失敗:", error);
+        currentUrl.value = "無法獲取當前網站";
       }
     }
     async function performScan() {
-      if (!currentUrl.value || currentUrl.value === "无法获取当前网站") return;
+      if (!currentUrl.value || currentUrl.value === "無法獲取當前網站") return;
       isScanning.value = true;
       siteStatus.value = "checking";
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab?.id) {
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ["content.js"]
+            });
+          } catch (injectError) {
+            console.log("Content script 可能已經載入:", injectError.message);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 100));
           const response = await chrome.tabs.sendMessage(tab.id, { action: "detectPhishing" });
           if (response) {
             riskScore.value = response.riskScore || 0;
@@ -6140,29 +6149,32 @@ const _sfc_main = {
             } else {
               siteStatus.value = "safe";
             }
+          } else {
+            siteStatus.value = "safe";
+            riskScore.value = 0;
           }
         }
       } catch (error) {
-        console.error("检测失败:", error);
-        siteStatus.value = "safe";
-        riskScore.value = 0;
+        console.error("檢測失敗:", error);
+        if (error.message?.includes("Cannot access") || currentUrl.value.startsWith("chrome://")) {
+          siteStatus.value = "safe";
+          riskScore.value = 0;
+        } else {
+          siteStatus.value = "safe";
+          riskScore.value = 0;
+        }
       } finally {
         isScanning.value = false;
       }
-    }
-    function openSettings() {
-      chrome.tabs.create({
-        url: "https://github.com/your-repo/phishing-detector#usage"
-      });
     }
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1, [
         _cache[1] || (_cache[1] = createBaseVNode("div", { class: "header" }, [
           createBaseVNode("div", { class: "logo" }, "🛡️"),
-          createBaseVNode("h1", { class: "title" }, "钓鱼网站检测器")
+          createBaseVNode("h1", { class: "title" }, "釣魚網站檢測器")
         ], -1)),
         createBaseVNode("div", _hoisted_2, [
-          createBaseVNode("div", _hoisted_3, toDisplayString(currentUrl.value || "正在获取当前网站..."), 1),
+          createBaseVNode("div", _hoisted_3, toDisplayString(currentUrl.value || "正在獲取當前網站..."), 1),
           createBaseVNode("div", {
             class: normalizeClass(["status", statusClass.value])
           }, [
@@ -6175,22 +6187,15 @@ const _sfc_main = {
           onClick: performScan,
           disabled: isScanning.value
         }, [
-          !isScanning.value ? (openBlock(), createElementBlock("span", _hoisted_6, "重新扫描")) : (openBlock(), createElementBlock("span", _hoisted_7, [..._cache[0] || (_cache[0] = [
+          !isScanning.value ? (openBlock(), createElementBlock("span", _hoisted_6, "重新掃描")) : (openBlock(), createElementBlock("span", _hoisted_7, [..._cache[0] || (_cache[0] = [
             createBaseVNode("span", { class: "spinner" }, null, -1),
-            createBaseVNode("span", null, "扫描中...", -1)
+            createBaseVNode("span", null, "掃描中...", -1)
           ])]))
         ], 8, _hoisted_5),
-        _cache[2] || (_cache[2] = createStaticVNode('<div class="features" data-v-f8ade5ab><div class="feature" data-v-f8ade5ab><span class="feature-icon" data-v-f8ade5ab>⚡</span><span data-v-f8ade5ab>实时自动检测</span></div><div class="feature" data-v-f8ade5ab><span class="feature-icon" data-v-f8ade5ab>🔒</span><span data-v-f8ade5ab>安全连接验证</span></div><div class="feature" data-v-f8ade5ab><span class="feature-icon" data-v-f8ade5ab>🎯</span><span data-v-f8ade5ab>智能内容分析</span></div><div class="feature" data-v-f8ade5ab><span class="feature-icon" data-v-f8ade5ab>📊</span><span data-v-f8ade5ab>风险评分系统</span></div></div>', 1)),
-        createBaseVNode("div", { class: "settings" }, [
-          createBaseVNode("a", {
-            href: "#",
-            class: "settings-link",
-            onClick: openSettings
-          }, "设置和帮助")
-        ])
+        _cache[2] || (_cache[2] = createStaticVNode('<div class="features" data-v-b31dd4d9><div class="feature" data-v-b31dd4d9><span class="feature-icon" data-v-b31dd4d9>⚡</span><span data-v-b31dd4d9>即時自動檢測</span></div><div class="feature" data-v-b31dd4d9><span class="feature-icon" data-v-b31dd4d9>🔒</span><span data-v-b31dd4d9>安全連線驗證</span></div><div class="feature" data-v-b31dd4d9><span class="feature-icon" data-v-b31dd4d9>🎯</span><span data-v-b31dd4d9>智慧內容分析</span></div><div class="feature" data-v-b31dd4d9><span class="feature-icon" data-v-b31dd4d9>📊</span><span data-v-b31dd4d9>風險評分系統</span></div></div>', 1))
       ]);
     };
   }
 };
-const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-f8ade5ab"]]);
+const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-b31dd4d9"]]);
 createApp(App).mount("#app");

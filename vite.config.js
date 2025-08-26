@@ -27,7 +27,7 @@ export default defineConfig({
         assetFileNames: '[name].[ext]'
       }
     },
-    minify: false, // 保持代码可读性，便于调试
+    minify: false, // 保持程式碼可讀性，便於除錯
     sourcemap: false
   }
 })
