@@ -1,0 +1,9 @@
+body { width: 360px; margin: 12px; font: 14px/1.5 system-ui, Arial; color: #111; }
+h1 { font-size: 16px; margin: 0 0 8px; }
+h2 { font-size: 14px; margin: 12px 0 6px; }
+.row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+.buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+button { padding: 6px 10px; }
+.hint { color: #555; font-size: 12px; margin-top: 8px; }
+code { background: #f4f4f4; padding: 0 4px; border-radius: 3px; }

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釣魚網站檢測測試頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+        }
+        .danger-link {
+            background: #dc3545;
+        }
+        .danger-link:hover {
+            background: #c82333;
+        }
+        .warning-link {
+            background: #ffc107;
+            color: black;
+        }
+        .warning-link:hover {
+            background: #e0a800;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #666;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .instruction {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .form-test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛡️ 釣魚網站檢測器測試頁面</h1>
+
+    <div class="instruction">
+        <strong>📝 測試說明：</strong>
+        <br>這個頁面包含了會觸發釣魚檢測的各種元素。安裝擴充功能後，訪問這個頁面應該會自動彈出警告。
+        <br><strong>測試步驟：</strong>
+        <ol>
+            <li>確保已安裝釣魚網站檢測器擴充功能</li>
+            <li>重新整理這個頁面</li>
+            <li>觀察是否彈出警告提示</li>
+            <li>點擊擴充功能圖示查看檢測結果</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>⚠️ 高風險測試連結</h2>
+        <p>以下連結包含釣魚網站常見的可疑特徵：</p>
+        <a href="http://paypal-security-update.verify-account.com" class="test-link danger-link">
+            PayPal 安全更新 (模擬釣魚)
+        </a>
+        <a href="https://amazon-urgent-action.bit.ly/verify" class="test-link danger-link">
+            Amazon 緊急行動 (短連結)
+        </a>
+        <a href="http://192.168.1.100/microsoft-security" class="test-link danger-link">
+            Microsoft 安全中心 (IP 位址)
+        </a>
+    </div>
+
+    <div class="test-section">
+        <h2>⚠️ 中等風險測試內容</h2>
+        <p>這個頁面包含緊急性詞彙，應該觸發內容檢測：</p>
+        <div style="background: #fff3cd; padding: 15px; border-radius: 5px;">
+            <strong>立即驗證您的帳戶！</strong><br>
+            您的帳戶已暫停，請馬上行動進行身份驗證！<br>
+            這是緊急通知，限時優惠即將結束！<br>
+            點擊確認繼續使用我們的服務。
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 表單安全測試</h2>
+        <p>多個敏感輸入欄位會觸發檢測：</p>
+        <div class="form-test">
+            <label>使用者名稱：</label>
+            <input type="text" placeholder="使用者名稱"><br>
+
+            <label>密碼：</label>
+            <input type="password" placeholder="密碼"><br>
+
+            <label>確認密碼：</label>
+            <input type="password" placeholder="確認密碼"><br>
+
+            <label>信用卡號：</label>
+            <input type="text" name="credit-card" placeholder="信用卡號"><br>
+
+            <label>安全碼：</label>
+            <input type="text" name="cvv" placeholder="CVV"><br>
+
+            <button type="submit">提交 (測試安全警告)</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 檢測結果說明</h2>
+        <p><strong>預期結果：</strong></p>
+        <ul>
+            <li>🚨 <strong>自動彈窗：</strong> 頁面載入後應該自動彈出釣魚警告</li>
+            <li>📊 <strong>風險評分：</strong> 總分應該超過 25 分，觸發警告</li>
+            <li>📋 <strong>問題列表：</strong> 應該顯示檢測到的具體問題</li>
+            <li>🛡️ <strong>安全建議：</strong> 提供相應的安全操作建議</li>
+        </ul>
+
+        <p><strong>如果沒有彈出警告，請檢查：</strong></p>
+        <ul>
+            <li>✅ 擴充功能是否正確安裝</li>
+            <li>✅ 擴充功能是否已啟用</li>
+            <li>✅ 瀏覽器控制台是否有錯誤訊息</li>
+            <li>✅ 是否需要重新整理頁面</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 擴充功能測試</h2>
+        <p>測試擴充功能的各項功能：</p>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            <strong>1. 點擊擴充功能圖示</strong> - 查看彈窗介面<br>
+            <strong>2. 查看目前網站評分</strong> - 應顯示風險等級<br>
+            <strong>3. 點擊重新掃描</strong> - 測試掃描功能<br>
+            <strong>4. 觀察警告彈窗</strong> - 測試自動檢測<br>
+        </div>
+    </div>
+
+    <script>
+        // 新增一些動態內容來增加檢測觸發的可能性
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('測試頁面載入完成，等待釣魚檢測...');
+
+            // 模擬表單提交測試
+            const form = document.querySelector('button[type="submit"]');
+            if (form) {
+                form.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('這是一個測試按鈕，不會真正提交資料。如果看到安全警告，說明檢測功能正常！');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
